@@ -1,0 +1,454 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#090909">
+<title>FAQs · JCTRADER</title>
+<style>
+/* ==========================================================================
+   FONTS (local assets, offline)
+   Display: Figtree 800 · UI/body: Figtree 400/500/600 · Search field: Lexend 300
+   ========================================================================== */
+@font-face{font-family:'Figtree';font-style:normal;font-weight:400;font-display:swap;src:url(assets/figtree-400.woff2) format('woff2');}
+@font-face{font-family:'Figtree';font-style:normal;font-weight:500;font-display:swap;src:url(assets/figtree-500.woff2) format('woff2');}
+@font-face{font-family:'Figtree';font-style:normal;font-weight:600;font-display:swap;src:url(assets/figtree-600.woff2) format('woff2');}
+@font-face{font-family:'Figtree';font-style:normal;font-weight:800;font-display:swap;src:url(assets/figtree-800.woff2) format('woff2');}
+@font-face{font-family:'Lexend';font-style:normal;font-weight:300;font-display:swap;src:url(assets/lexend-300.woff2) format('woff2');}
+
+
+/* ==========================================================================
+   SCALE SYSTEM
+   Every measurement below is the reference value in design units (u).
+   Reference canvas = 1778u wide (the full page width in the mock).
+   ≥1200px  : 1u = page width / 1778  -> pixel-proportional replica of the mock
+   768-1199 : fixed unit + reflowed layout (tablet)
+   <768     : fixed unit + single-column layout (mobile)
+   ========================================================================== */
+:root{
+  --u: calc(100vw / 1778);
+  /* palette (sampled from the reference) */
+  --bg:        #090909;
+  --lime:      #83f34d;
+  --lime-ink:  #0b2400;
+  --white:     #ffffff;
+  --card:      #1b1b1b;
+  --card-ring: #232323;
+  --acc:       #131313;
+  --rule:      #2f2f2f;
+  --muted:     rgba(255,255,255,.82);
+  --col: calc(var(--u) * 1224);                         /* content column width */
+  --gutter: calc(var(--u) * 15);
+}
+@supports (width: 1cqi){ :root{ --u: calc(100cqi / 1778); } }
+@media (min-width: 2200px){ :root{ --u: calc(2200px / 1778); } }      /* cap on ultra-wide */
+@media (max-width: 1199.98px){ :root{ --u: 0.82px; --col: calc(100% - 64px); } }
+@media (max-width: 767.98px){  :root{ --u: 0.8px;  --col: calc(100% - 32px); } }
+
+*,*::before,*::after{ box-sizing:border-box; }
+html{ background:var(--bg); -webkit-text-size-adjust:100%; text-size-adjust:100%; }
+body{
+  margin:0; min-height:100vh; min-height:100svh;
+  background:var(--bg); color:var(--white);
+  font-family:'Figtree', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  font-weight:400; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+  container-type:inline-size; overflow-x:clip;
+}
+a{ color:inherit; text-decoration:none; }
+button,input{ font:inherit; color:inherit; }
+button{ background:none; border:0; padding:0; cursor:pointer; }
+svg{ display:block; }
+:focus-visible{ outline:2px solid var(--lime); outline-offset:3px; }
+.sr-only{ position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
+
+/* ==========================================================================
+   PAGE + BACKGROUND
+   ========================================================================== */
+.page{ position:relative; isolation:isolate; min-height:100vh; min-height:100svh; display:flex; flex-direction:column; }
+.page::before{                       /* central green glow (sits under the hero panel and spills past it) */
+  content:""; position:absolute; z-index:-2; left:0; right:0; top:0; height:calc(var(--u) * 1180);
+  background:
+    radial-gradient(calc(var(--u) * 740) calc(var(--u) * 950) at 50% calc(var(--u) * 92),
+      #1d2e13 0%, #1b2d14 10%, #1a2a12 20%, #162611 30%, #13210f 40%, #0f1b0d 50%,
+      #0d150b 60%, #0c110b 70%, #0a0e09 80%, #090909 90%);
+  pointer-events:none;
+}
+
+/* hero layer: full-bleed (edge to edge, no frame), stepped light bars on both sides */
+.panel{
+  position:absolute; z-index:-1; top:0; left:0; right:0;
+  height:calc(var(--u) * 655); pointer-events:none; overflow:hidden;
+}
+.panel::before{                      /* faint light spill along the top edge */
+  content:""; position:absolute; inset:0 0 auto; height:calc(var(--u) * 105);
+  background:linear-gradient(rgba(40,70,25,.24), rgba(40,70,25,0));
+}
+/* bar geometry in reference px of a 1778-wide page; outer bars run to the screen edge */
+.bar{ position:absolute; top:0; height:var(--h); width:calc(var(--w) * 100% / 1778);
+  background:linear-gradient(var(--c), rgba(9,9,9,0)); }
+.bar.l{ left:calc(var(--x) * 100% / 1778); } .bar.r{ right:calc(var(--x) * 100% / 1778); }
+.b1{ --x:0;   --w:93; --h:calc(var(--u) * 430); --c:#2a4b1b; }
+.b2{ --x:93;  --w:80; --h:calc(var(--u) * 360); --c:#25451a; }
+.b3{ --x:173; --w:80; --h:calc(var(--u) * 288); --c:#253e18; }
+.b4{ --x:253; --w:80; --h:calc(var(--u) * 216); --c:#213616; }
+.b5{ --x:333; --w:84; --h:calc(var(--u) * 156); --c:#1d2f14; }
+.bar.r.b1{ --w:98; } .bar.r.b2{ --x:98; --w:80; } .bar.r.b3{ --x:178; --w:83; } .bar.r.b4{ --x:261; --w:80; } .bar.r.b5{ --x:341; --w:84; }
+
+/* ==========================================================================
+   GLASS (shared)
+   ========================================================================== */
+.glass{
+  background:rgba(255,255,255,.05);
+  -webkit-backdrop-filter:blur(calc(var(--u) * 18));
+          backdrop-filter:blur(calc(var(--u) * 18));
+  border:1px solid rgba(255,255,255,.2);
+}
+
+/* ==========================================================================
+   NAV
+   ========================================================================== */
+.nav{
+  position:relative; z-index:20; display:flex; align-items:center;
+  height:calc(var(--u) * 58); margin-top:calc(var(--u) * 22); padding:0 calc(var(--u) * 101) 0 calc(var(--u) * 92);
+  width:100%; max-width:calc(var(--u) * 1778); margin-inline:auto;
+}
+.brand{ display:flex; align-items:center; gap:calc(var(--u) * 11); }
+.brand svg{ width:calc(var(--u) * 51); height:calc(var(--u) * 26); }
+.brand span{ font-size:calc(var(--u) * 26.4); font-weight:500; letter-spacing:calc(var(--u) * -.1); line-height:1; }
+
+.links{
+  position:absolute; left:50%; top:calc(var(--u) * 3); transform:translateX(-50%);
+  display:flex; align-items:center; gap:calc(var(--u) * 36.6); list-style:none; margin:0;
+  height:calc(var(--u) * 54); padding:0 calc(var(--u) * 35.25);
+  border-radius:calc(var(--u) * 13); border-color:rgba(255,255,255,.14);
+  background:rgba(255,255,255,.055);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 calc(var(--u) * 4) calc(var(--u) * 18) rgba(0,0,0,.12);
+}
+.links a{ font-size:calc(var(--u) * 17); line-height:1; opacity:.97; transition:opacity .2s; white-space:nowrap; }
+.links a:hover{ opacity:1; text-shadow:0 0 calc(var(--u) * 12) rgba(131,243,77,.45); }
+
+.actions{ margin-left:auto; display:flex; align-items:center; }
+.lang{
+  display:flex; align-items:center; height:calc(var(--u) * 47); width:calc(var(--u) * 138); padding:0 0 0 calc(var(--u) * 22.5);
+  border-radius:calc(var(--u) * 10); margin-right:calc(var(--u) * 29);
+  background:rgba(255,255,255,.035); border-color:rgba(255,255,255,.11);
+}
+.lang .flag{ width:calc(var(--u) * 14.5); height:calc(var(--u) * 14.5); border-radius:50%; overflow:hidden; flex:none; }
+.lang .flag svg{ width:100%; height:100%; }
+.lang .label{ font-size:calc(var(--u) * 15.6); margin-left:calc(var(--u) * 5.5); line-height:1; }
+.lang .chev{ width:calc(var(--u) * 11); height:calc(var(--u) * 6); margin-left:calc(var(--u) * 9); }
+
+.btn{ display:inline-flex; align-items:center; justify-content:center; height:calc(var(--u) * 58); border-radius:calc(var(--u) * 12); font-size:calc(var(--u) * 17.4); font-weight:400; line-height:1; white-space:nowrap; transition:transform .2s, box-shadow .2s, background-color .2s; }
+.btn-ghost{ width:calc(var(--u) * 101); border:calc(var(--u) * 1.4) solid rgba(140,214,105,.92); background:rgba(131,243,77,.06); color:#f4fff0; box-shadow:inset 0 0 0 1px rgba(0,30,0,.45);
+  -webkit-backdrop-filter:blur(calc(var(--u) * 12)); backdrop-filter:blur(calc(var(--u) * 12)); margin-right:calc(var(--u) * 14.5); }
+.btn-ghost:hover{ background:rgba(131,243,77,.1); }
+.btn-lime{ width:calc(var(--u) * 142); background:var(--lime); color:var(--lime-ink); box-shadow: inset 0 0 0 1px rgba(255,255,255,.22); }
+.btn-lime:hover{ box-shadow: inset 0 0 0 1px rgba(255,255,255,.3), 0 0 calc(var(--u) * 28) rgba(131,243,77,.35); }
+
+.menu-btn{ display:none; }
+.drawer{ display:none; }
+
+/* ==========================================================================
+   HERO
+   ========================================================================== */
+.hero{ text-align:center; padding-top:calc(var(--u) * 177); }
+.eyebrow{
+  display:inline-flex; align-items:center; justify-content:center;
+  width:calc(var(--u) * 97); height:calc(var(--u) * 52); border-radius:999px;
+  font-size:calc(var(--u) * 19.6); line-height:1; font-weight:400; letter-spacing:0;
+  background:rgba(160,230,130,.12); border:calc(var(--u) * 1.3) solid rgba(200,245,180,.8);
+  -webkit-backdrop-filter:blur(calc(var(--u) * 10)); backdrop-filter:blur(calc(var(--u) * 10));
+  box-shadow: inset 0 0 calc(var(--u) * 10) rgba(131,243,77,.08);
+}
+h1{
+  margin:calc(var(--u) * 14) 0 0; font-weight:800; font-size:calc(var(--u) * 62.8); line-height:calc(var(--u) * 75); letter-spacing:calc(var(--u) * -.19);
+}
+.lede{ margin:calc(var(--u) * 4) auto 0; font-size:calc(var(--u) * 17.05); line-height:calc(var(--u) * 28); letter-spacing:calc(var(--u) * -.05); max-width:calc(var(--u) * 640); }
+.lede br{ display:inline; }
+.btn-white{
+  display:inline-flex; align-items:center; justify-content:center; margin-top:calc(var(--u) * 21);
+  width:calc(var(--u) * 221); height:calc(var(--u) * 50); border-radius:calc(var(--u) * 11); background:#fff; color:#0a0a0a;
+  font-size:calc(var(--u) * 17.4); font-weight:500; line-height:1; transition:transform .2s, box-shadow .2s;
+}
+.btn-white:hover, .btn-lime:hover{ transform:translateY(-1px); }
+
+/* ==========================================================================
+   FAQ AREA
+   ========================================================================== */
+.faq{ width:var(--col); margin:0 auto; padding-bottom:calc(var(--u) * 120); flex:1; }
+
+.search{
+  position:relative; display:flex; align-items:center; margin-top:calc(var(--u) * 79);
+  height:calc(var(--u) * 74); border-radius:999px; padding:0 calc(var(--u) * 30) 0 calc(var(--u) * 31);
+  background:rgba(255,255,255,.16); border:1px solid rgba(255,255,255,.27);
+  -webkit-backdrop-filter:blur(calc(var(--u) * 24)) saturate(110%); backdrop-filter:blur(calc(var(--u) * 24)) saturate(110%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.06);
+}
+.search svg{ width:calc(var(--u) * 25); height:calc(var(--u) * 25); flex:none; }
+.search input{
+  flex:1; min-width:0; height:100%; margin-left:calc(var(--u) * 10.5); background:none; border:0; outline:none;
+  font-family:'Lexend', 'Figtree', sans-serif; font-weight:300; font-size:calc(var(--u) * 14.6); letter-spacing:calc(var(--u) * .44);
+}
+.search input::placeholder{ color:rgba(255,255,255,.96); opacity:1; }
+.search:focus-within{ border-color:rgba(131,243,77,.6); box-shadow:0 0 0 calc(var(--u) * 4) rgba(131,243,77,.12); }
+
+.cats{ display:grid; grid-template-columns:1fr 1fr; gap:calc(var(--u) * 23) calc(var(--u) * 25); margin-top:calc(var(--u) * 59); }
+.cat{
+  display:flex; align-items:center; height:calc(var(--u) * 129); padding:0 calc(var(--u) * 20) 0 calc(var(--u) * 14.5);
+  border-radius:999px; background:var(--card);
+  border:1px solid rgba(255,255,255,.055); box-shadow: inset 0 -1px 0 rgba(255,255,255,.03);
+  transition:border-color .2s, background-color .2s;
+}
+.cat:hover{ border-color:rgba(131,243,77,.35); background:#1e1e1e; }
+.cat .ico{ width:calc(var(--u) * 99); height:calc(var(--u) * 99); flex:none; border-radius:50%; background:var(--card-ring);
+  display:grid; place-items:center; box-shadow:0 0 calc(var(--u) * 3) rgba(36,36,36,.9); }
+.cat .ico svg{ width:calc(var(--u) * 48); height:calc(var(--u) * 48); overflow:visible; }
+.cat .txt{ margin-left:calc(var(--u) * 29); text-align:left; position:relative; top:calc(var(--u) * -1); }
+.cat b{ display:block; font-weight:500; font-size:calc(var(--u) * 23.2); line-height:calc(var(--u) * 28); letter-spacing:calc(var(--u) * -.1); }
+.cat small{ display:block; margin-top:calc(var(--u) * 4); font-size:calc(var(--u) * 16.6); line-height:calc(var(--u) * 22); color:var(--muted); }
+
+.acc{ margin-top:calc(var(--u) * 58); }
+.item + .item{ margin-top:calc(var(--u) * 22); }
+.item.open + .item{ margin-top:calc(var(--u) * 22); }
+.q{
+  width:100%; display:flex; align-items:center; justify-content:space-between; text-align:left;
+  min-height:calc(var(--u) * 82); padding:calc(var(--u) * 18) calc(var(--u) * 33) calc(var(--u) * 18) calc(var(--u) * 31); border-radius:calc(var(--u) * 14); background:var(--acc);
+  font-size:calc(var(--u) * 23.6); font-weight:500; line-height:calc(var(--u) * 30); letter-spacing:calc(var(--u) * -.36);
+  transition:background-color .2s, border-radius .25s;
+}
+.q:hover{ background:#171717; }
+.q svg{ width:calc(var(--u) * 18); height:calc(var(--u) * 18); flex:none; margin-left:calc(var(--u) * 20); transition:transform .3s; transform:rotate(180deg); }
+.item.open .q{ border-radius:calc(var(--u) * 14) calc(var(--u) * 14) 0 0; }
+.item.open .q svg{ transform:rotate(0deg); }
+.a{ display:grid; grid-template-rows:0fr; transition:grid-template-rows .32s ease; }
+.item.open .a{ grid-template-rows:1fr; }
+.a > div{ overflow:hidden; }
+.a p{ margin:0; padding:calc(var(--u) * 25) calc(var(--u) * 14) calc(var(--u) * 20) calc(var(--u) * 16); font-size:calc(var(--u) * 15.2); line-height:calc(var(--u) * 23); letter-spacing:calc(var(--u) * -.17); border-bottom:1px solid var(--rule); }
+.item[hidden]{ display:none; }
+.empty{ display:none; margin:calc(var(--u) * 30) 0 0; text-align:center; color:var(--muted); font-size:calc(var(--u) * 17); }
+.empty.show{ display:block; }
+
+/* ==========================================================================
+   TABLET (768–1199): fixed unit, nav collapses to a menu
+   ========================================================================== */
+@media (max-width: 1199.98px){
+  .nav{ padding:0 32px; height:52px; margin-top:24px; }
+  .links, .actions .lang, .actions .btn-ghost{ display:none; }
+  .btn-lime{ height:46px; width:auto; padding:0 20px; font-size:15px; border-radius:11px; }
+  .menu-btn{ display:grid; place-items:center; width:46px; height:46px; margin-left:12px; border-radius:11px; }
+  .menu-btn svg{ width:20px; height:20px; }
+  .drawer{
+    position:absolute; right:32px; top:calc(100% + 10px); width:min(320px, calc(100vw - 32px));
+    padding:10px; border-radius:16px; flex-direction:column; gap:2px;
+    background:rgba(18,26,14,.72); box-shadow:0 20px 50px rgba(0,0,0,.45);
+  }
+  .nav.menu-open .drawer{ display:flex; }
+  .drawer a{ padding:13px 14px; border-radius:10px; font-size:16px; }
+  .drawer a:hover{ background:rgba(255,255,255,.06); }
+  .drawer .row{ display:flex; gap:10px; padding:8px 4px 4px; }
+  .drawer .row > *{ flex:1; height:46px; font-size:15px; border-radius:11px; }
+  .drawer .lang{ width:auto; margin:0; padding:0 0 0 14px; }
+  .drawer .btn-ghost{ display:inline-flex; width:auto; margin:0; }
+  .hero{ padding-top:clamp(90px, 14vw, 150px); }
+  .panel{ height:min(655px, 120vw); }
+}
+@media (max-width: 899.98px){ .cats{ grid-template-columns:1fr; } }
+
+/* ==========================================================================
+   MOBILE (<768): single column, fluid display type
+   ========================================================================== */
+@media (max-width: 767.98px){
+  :root{ --gutter:8px; }
+  .nav{ padding:0 16px 0 18px; margin-top:16px; }
+  .drawer{ right:16px; }
+  .brand svg{ width:42px; height:21px; } .brand span{ font-size:21px; }
+  .btn-lime{ padding:0 16px; height:44px; font-size:14.5px; }
+  .menu-btn{ width:44px; height:44px; margin-left:8px; }
+  .hero{ padding-top:76px; padding-left:16px; padding-right:16px; }
+  .eyebrow{ width:80px; height:42px; font-size:16px; }
+  h1{ font-size:clamp(32px, 10.4vw, 48px); line-height:1.12; letter-spacing:-.02em; margin-top:16px; }
+  .lede{ font-size:15.5px; line-height:1.6; margin-top:14px; }
+  .lede br{ display:none; }
+  .btn-white{ margin-top:24px; height:48px; width:auto; padding:0 26px; font-size:15.5px; }
+  .search{ margin-top:52px; height:60px; padding:0 22px; }
+  .search svg{ width:21px; height:21px; }
+  .search input{ font-size:14px; margin-left:12px; }
+  .cats{ margin-top:32px; gap:14px; }
+  .cat{ height:96px; padding:0 18px 0 10px; }
+  .cat .ico{ width:76px; height:76px; } .cat .ico svg{ width:38px; height:38px; }
+  .cat .txt{ margin-left:16px; }
+  .cat b{ font-size:18px; line-height:1.3; } .cat small{ font-size:14px; }
+  .acc{ margin-top:36px; }
+  .item + .item{ margin-top:14px; }
+  .q{ min-height:64px; padding:16px 18px 16px 20px; font-size:17px; line-height:1.4; border-radius:12px; }
+  .item.open .q{ border-radius:12px 12px 0 0; }
+  .a p{ padding:18px 14px 20px; font-size:14.5px; line-height:1.65; }
+  .faq{ padding-bottom:64px; }
+}
+@media (prefers-reduced-motion: reduce){ *{ transition:none !important; } }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="panel" aria-hidden="true">
+    <i class="bar l b1"></i><i class="bar l b2"></i><i class="bar l b3"></i><i class="bar l b4"></i><i class="bar l b5"></i>
+    <i class="bar r b1"></i><i class="bar r b2"></i><i class="bar r b3"></i><i class="bar r b4"></i><i class="bar r b5"></i>
+  </div>
+
+  <nav class="nav" id="nav" aria-label="Primary">
+    <a class="brand" href="#" aria-label="JCTRADER home">
+      <svg viewBox="1.6 0.8 52.6 27.4" fill="#fff" aria-hidden="true">
+        <defs><mask id="jcm" maskUnits="userSpaceOnUse" x="0" y="0" width="56" height="30">
+          <rect width="56" height="30" fill="#fff"/>
+          <path d="M28.6 .6C25.4 2.8 22.4 5.4 20.7 9.8" fill="none" stroke="#000" stroke-width="1.35"/>
+          <path d="M27.1 18.2C27.4 21.4 25.4 24.6 17.4 28.6H30.6C27.9 26 27.4 22.2 28.5 18.2Z" fill="#000"/>
+        </mask></defs>
+        <path mask="url(#jcm)" d="M19.2 1.6H54.3L48.5 9.3H31.3C29.6 9.6 28.6 11.2 28.5 13.4V16.6C28.6 18.8 29.6 20.4 31.6 20.7H54.4L48.8 28.2H2L7.1 20.7H15.8C18.2 20.3 19.2 18.9 19.3 16.6V5.2C19.3 3.6 19.2 2.6 19.2 1.6Z"/>
+      </svg>
+      <span>JCTRADER</span>
+    </a>
+
+    <ul class="links glass">
+      <li><a href="#">About Us</a></li>
+      <li><a href="#">Accounts</a></li>
+      <li><a href="#">Partnerships</a></li>
+      <li><a href="#faqs" aria-current="page">FAQs</a></li>
+    </ul>
+
+    <div class="actions">
+      <button class="lang glass" type="button" aria-label="Language: English">
+        <span class="flag"><svg viewBox="0 0 30 30" aria-hidden="true"><rect width="30" height="30" fill="#f4f4f4"/><g fill="#d8343f"><rect y="0" width="30" height="2.4"/><rect y="4.6" width="30" height="2.4"/><rect y="9.2" width="30" height="2.4"/><rect y="13.8" width="30" height="2.4"/><rect y="18.4" width="30" height="2.4"/><rect y="23" width="30" height="2.4"/><rect y="27.6" width="30" height="2.4"/></g><rect width="15" height="16.1" fill="#3d4ea3"/><g fill="#fff"><circle cx="3" cy="3" r=".9"/><circle cx="7.5" cy="3" r=".9"/><circle cx="12" cy="3" r=".9"/><circle cx="5.2" cy="6.5" r=".9"/><circle cx="9.7" cy="6.5" r=".9"/><circle cx="3" cy="10" r=".9"/><circle cx="7.5" cy="10" r=".9"/><circle cx="12" cy="10" r=".9"/><circle cx="5.2" cy="13.4" r=".9"/><circle cx="9.7" cy="13.4" r=".9"/></g></svg></span>
+        <span class="label">English</span>
+        <svg class="chev" viewBox="0 0 11 6" fill="none" stroke="#fff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M.8 .8 5.5 5.2 10.2 .8"/></svg>
+      </button>
+      <a class="btn btn-ghost" href="#">Login</a>
+      <a class="btn btn-lime" href="#">Trade Now</a>
+      <button class="menu-btn glass" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="drawer">
+        <svg viewBox="0 0 20 20" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M3 6h14M3 10h14M3 14h14"/></svg>
+      </button>
+    </div>
+
+    <div class="drawer glass" id="drawer">
+      <a href="#">About Us</a><a href="#">Accounts</a><a href="#">Partnerships</a><a href="#faqs">FAQs</a>
+      <div class="row">
+        <button class="lang glass" type="button"><span>English</span></button>
+        <a class="btn btn-ghost" href="#">Login</a>
+      </div>
+    </div>
+  </nav>
+
+  <header class="hero">
+    <span class="eyebrow">FAQ</span>
+    <h1>Frequently Asked Questions</h1>
+    <p class="lede">Find answers to the most common questions about JCTRADER’s platforms,<br> accounts, deposits, trading conditions, and more.</p>
+    <a class="btn-white" href="#">Join Our Community</a>
+  </header>
+
+  <main class="faq" id="faqs">
+    <label class="search">
+      <svg viewBox="0 0 25 25" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="10.9" cy="10.9" r="9.8"/><path d="M18.2 18.2 23.6 23.6"/></svg>
+      <span class="sr-only">Search FAQs</span>
+      <input id="q" type="search" placeholder="Search for your queries" autocomplete="off">
+    </label>
+
+    <section class="cats" aria-label="Help categories">
+      <a class="cat" href="#">
+        <span class="ico"><svg viewBox="1.5 0.5 48 48" aria-hidden="true">
+          <g fill="#fff">
+            <path d="M9.1 1.2C11.6.7 14.1 1.9 15.8 3.7L18.9 4.3 22.3 2.3C24.3 1.1 26.4 1 28.5 1.4L25.3 9.6H13.4Z"/>
+            <rect x="12.2" y="12" width="13.6" height="3" rx=".9"/>
+            <path d="M14.2 14.8H23.7L24.3 17.6C29.4 20.8 34.4 27.2 34.4 33.8V48H6.4C3 47.4 1 44.4 1 40.2 1 31.4 6.6 22.4 14.2 17.6Z"/>
+          </g>
+          <path d="M19.6 22.4V25M23.4 28.3C22.9 26.6 21.4 25.6 19.5 25.6 17.4 25.6 15.9 26.9 15.9 28.6 15.9 33 23.6 31 23.6 35.8 23.6 37.6 21.9 38.8 19.6 38.8 17.5 38.8 16 37.8 15.4 36M19.6 38.8V41.6" fill="none" stroke="#232323" stroke-width="1.9" stroke-linecap="butt"/>
+          <path d="M26 33.6 28.4 31.2H49V49H26Z" fill="#232323"/>
+          <rect x="28.1" y="34" width="19.7" height="5.4" rx=".9" fill="#fff"/>
+          <rect x="28.1" y="41.8" width="20.1" height="5.8" rx=".9" fill="#fff"/>
+        </svg></span>
+        <span class="txt"><b>About JC Trader</b><small>62 Articles</small></span>
+      </a>
+      <a class="cat" href="#">
+        <span class="ico"><svg viewBox="-0.5 -0.5 48 48" aria-hidden="true"><g fill="#fff">
+          <rect x="8.9" y="9.3" width="1.3" height="34.6"/><rect x="5.6" y="16" width="7.5" height="14.3"/>
+          <rect x="18" y="17" width="1.9" height="20"/><rect x="15" y="24" width="8" height="9"/>
+          <rect x="28" y="15" width="1.5" height="37"/><rect x="25" y="24" width="7.7" height="24"/>
+          <rect x="37.9" y="27" width="1.4" height="13.8"/><rect x="35" y="11.4" width="7" height="16.8"/>
+        </g></svg></span>
+        <span class="txt"><b>Trading Rules &amp; Guidelines</b><small>62 Articles</small></span>
+      </a>
+      <a class="cat" href="#">
+        <span class="ico"><svg viewBox="1.5 2.5 48 48" aria-hidden="true">
+          <circle cx="23" cy="25.5" r="19.5" fill="#fff"/>
+          <circle cx="23" cy="25.5" r="12.5" fill="#232323"/>
+          <circle cx="23" cy="25.5" r="10.5" fill="#fff"/>
+          <circle cx="23" cy="25.5" r="5.5" fill="#232323"/>
+          <circle cx="23" cy="25.5" r="3.5" fill="#fff"/>
+          <path d="M23 25.5 35.6 12.9" stroke="#232323" stroke-width="6.6" stroke-linecap="round"/>
+          <path d="M23 25.5 35.6 12.9" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/>
+          <path d="M38.7 2.8 45.6 9.6 39 17.2 35.6 14.6 31.2 17.6 32 9.2Z" fill="#fff" stroke="#232323" stroke-width="1.6" stroke-linejoin="round"/>
+        </svg></span>
+        <span class="txt"><b>JC Trader &nbsp;Challenge Insight</b><small>62 Articles</small></span>
+      </a>
+      <a class="cat" href="#">
+        <span class="ico"><svg viewBox="0 0 48 48" aria-hidden="true">
+          <circle cx="23.6" cy="23.6" r="19.6" fill="#fff"/>
+          <clipPath id="tc"><circle cx="23.6" cy="23.6" r="19.6"/></clipPath>
+          <g clip-path="url(#tc)" fill="none" stroke="#232323" stroke-width="3" stroke-linejoin="miter" stroke-linecap="butt">
+            <path d="M2 41.5 16.2 27.4 22.2 33.4 33 22.6"/>
+          </g>
+          <path d="M26.8 17.6H35.9V26.7Z" fill="#232323" stroke="#232323" stroke-width="1.4" stroke-linejoin="round"/>
+        </svg></span>
+        <span class="txt"><b>JC Trader Features</b><small>62 Articles</small></span>
+      </a>
+    </section>
+
+    <section class="acc" id="acc" aria-label="Questions">
+      <div class="item open">
+        <button class="q" type="button" aria-expanded="true">What assets can I trade on JCTRADER?<svg viewBox="0 0 18 18" fill="none" stroke="#fff" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="9" r="8.2"/><path d="M6.3 10.2 9 7.5l2.7 2.7"/></svg></button>
+        <div class="a"><div><p>Opening an account is simple and takes just a few minutes. Click “Sign Up”, complete the registration form, verify your identity through KYC (Know Your Customer) compliance, and fund your account using one of our secure payment methods. Once verified, you can start trading immediately.</p></div></div>
+      </div>
+      <div class="item">
+        <button class="q" type="button" aria-expanded="false">What is JCTRADER?<svg viewBox="0 0 18 18" fill="none" stroke="#fff" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="9" r="8.2"/><path d="M6.3 10.2 9 7.5l2.7 2.7"/></svg></button>
+        <div class="a"><div><p>JCTRADER is an online trading platform that gives you access to global markets through a fast, secure and easy-to-use interface, with dedicated support whenever you need it.</p></div></div>
+      </div>
+      <div class="item">
+        <button class="q" type="button" aria-expanded="false">How do I open an account?<svg viewBox="0 0 18 18" fill="none" stroke="#fff" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="9" r="8.2"/><path d="M6.3 10.2 9 7.5l2.7 2.7"/></svg></button>
+        <div class="a"><div><p>Click “Sign Up”, complete the registration form and verify your identity. Once your account is approved you can make your first deposit and start trading.</p></div></div>
+      </div>
+      <div class="item">
+        <button class="q" type="button" aria-expanded="false">Which deposit and withdrawal methods are available?<svg viewBox="0 0 18 18" fill="none" stroke="#fff" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="9" r="8.2"/><path d="M6.3 10.2 9 7.5l2.7 2.7"/></svg></button>
+        <div class="a"><div><p>You can fund and withdraw using the secure payment methods listed in your client area. Available options and processing times depend on your region.</p></div></div>
+      </div>
+      <div class="item">
+        <button class="q" type="button" aria-expanded="false">What are the trading conditions?<svg viewBox="0 0 18 18" fill="none" stroke="#fff" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="9" r="8.2"/><path d="M6.3 10.2 9 7.5l2.7 2.7"/></svg></button>
+        <div class="a"><div><p>Spreads, leverage and fees vary by account type and instrument. Compare them on the Accounts page to choose the setup that suits your trading style.</p></div></div>
+      </div>
+      <p class="empty" id="empty">No questions match your search.</p>
+    </section>
+  </main>
+</div>
+
+<script>
+(() => {
+  // Accordion: one item open at a time
+  const items = [...document.querySelectorAll('.item')];
+  items.forEach(it => it.querySelector('.q').addEventListener('click', () => {
+    const open = !it.classList.contains('open');
+    items.forEach(o => { o.classList.remove('open'); o.querySelector('.q').setAttribute('aria-expanded','false'); });
+    if (open){ it.classList.add('open'); it.querySelector('.q').setAttribute('aria-expanded','true'); }
+  }));
+  // Search filters questions + answers
+  const q = document.getElementById('q'), empty = document.getElementById('empty');
+  q.addEventListener('input', () => {
+    const s = q.value.trim().toLowerCase(); let n = 0;
+    items.forEach(it => { const hit = !s || it.textContent.toLowerCase().includes(s); it.hidden = !hit; n += hit; });
+    empty.classList.toggle('show', n === 0);
+  });
+  // Mobile/tablet menu
+  const nav = document.getElementById('nav'), btn = nav.querySelector('.menu-btn');
+  btn.addEventListener('click', e => { e.stopPropagation(); const o = nav.classList.toggle('menu-open'); btn.setAttribute('aria-expanded', o); });
+  document.addEventListener('click', e => { if (!nav.contains(e.target)) { nav.classList.remove('menu-open'); btn.setAttribute('aria-expanded', false); } });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') { nav.classList.remove('menu-open'); btn.setAttribute('aria-expanded', false); } });
+})();
+</script>
+</body>
+</html>

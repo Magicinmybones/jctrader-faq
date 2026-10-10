@@ -1,0 +1,18 @@
+# Local dependencies and Cloudflare state
+node_modules/
+.wrangler/
+.cache/
+dist/
+
+# Local credentials and environment files
+.env
+.env.*
+.dev.vars
+.dev.vars.*
+
+# Editor, OS, and log files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.log

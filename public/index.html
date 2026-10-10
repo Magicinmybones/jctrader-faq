@@ -5,6 +5,16 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#090909">
 <title>FAQs · JCTRADER</title>
+<script>
+// Establish the entrance state before the page can paint; fail open if later script fails.
+if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  document.documentElement.classList.add('intro-pending');
+  window.__introFallback = setTimeout(() => {
+    if (window.__finishIntro) window.__finishIntro();
+    else document.documentElement.classList.remove('intro-pending');
+  }, 3800);
+}
+</script>
 <style>
 /* ==========================================================================
    FONTS (local assets, offline)
@@ -163,6 +173,7 @@ svg{ display:block; }
 h1{
   margin:calc(var(--u) * 14) 0 0; font-weight:800; font-size:calc(var(--u) * 62.8); line-height:calc(var(--u) * 75); letter-spacing:calc(var(--u) * -.19);
 }
+.heading-text{ display:block; }
 .lede{ margin:calc(var(--u) * 4) auto 0; font-size:calc(var(--u) * 17.05); line-height:calc(var(--u) * 28); letter-spacing:calc(var(--u) * -.05); max-width:calc(var(--u) * 640); }
 .lede br{ display:inline; }
 .btn-white{
@@ -285,6 +296,17 @@ h1{
   .a p{ padding:18px 14px 20px; font-size:14.5px; line-height:1.65; }
   .faq{ padding-bottom:64px; }
 }
+/* Only the opening viewport participates in the one-time entrance. */
+.intro-pending .brand,
+.intro-pending .links,
+.intro-pending .actions,
+.intro-pending .eyebrow,
+.intro-pending .lede,
+.intro-pending .btn-white,
+.intro-pending .search,
+.intro-pending .cat[data-intro]{ opacity:0; }
+.intro-pending h1{ overflow:hidden; }
+.intro-pending .heading-text{ opacity:0; }
 @media (prefers-reduced-motion: reduce){ *{ transition:none !important; } }
 </style>
 </head>
@@ -339,7 +361,7 @@ h1{
 
   <header class="hero">
     <span class="eyebrow">FAQ</span>
-    <h1>Frequently Asked Questions</h1>
+    <h1><span class="heading-text">Frequently Asked Questions</span></h1>
     <p class="lede">Find answers to the most common questions about JCTRADER’s platforms,<br> accounts, deposits, trading conditions, and more.</p>
     <a class="btn-white" href="#">Join Our Community</a>
   </header>
@@ -448,6 +470,71 @@ h1{
   btn.addEventListener('click', e => { e.stopPropagation(); const o = nav.classList.toggle('menu-open'); btn.setAttribute('aria-expanded', o); });
   document.addEventListener('click', e => { if (!nav.contains(e.target)) { nav.classList.remove('menu-open'); btn.setAttribute('aria-expanded', false); } });
   document.addEventListener('keydown', e => { if (e.key === 'Escape') { nav.classList.remove('menu-open'); btn.setAttribute('aria-expanded', false); } });
+})();
+</script>
+<script>
+(() => {
+  const root = document.documentElement;
+  if (!root.classList.contains('intro-pending')) return;
+
+  // Cards outside the first viewport stay in their original static state.
+  const cards = [...document.querySelectorAll('.cat')].filter(card => {
+    const box = card.getBoundingClientRect();
+    return box.top < innerHeight && box.bottom > 0;
+  });
+  cards.forEach(card => card.setAttribute('data-intro', ''));
+
+  const animations = [];
+  let finished = false;
+  const finish = () => {
+    if (finished) return;
+    finished = true;
+    clearTimeout(window.__introFallback);
+    root.classList.remove('intro-pending');
+    animations.forEach(animation => animation.cancel());
+    cards.forEach(card => card.removeAttribute('data-intro'));
+    delete window.__finishIntro;
+    delete window.__introFallback;
+  };
+  window.__finishIntro = finish;
+
+  if (!Element.prototype.animate) { finish(); return; }
+  const ease = 'cubic-bezier(.22, 1, .36, 1)';
+  const play = (element, from, to, delay, duration, easing = ease) => {
+    if (!element || getComputedStyle(element).display === 'none') return;
+    animations.push(element.animate([from, to], {
+      delay, duration, easing, fill: 'both'
+    }));
+  };
+
+  const start = () => {
+    if (finished) return;
+    // Navigation frames the page without competing with the headline.
+    play(document.querySelector('.brand'), { opacity: 0, transform: 'translateY(6px)' }, { opacity: 1, transform: 'none' }, 0, 480);
+    play(document.querySelector('.links'), { opacity: 0 }, { opacity: 1 }, 90, 470);
+    play(document.querySelector('.actions'), { opacity: 0, transform: 'translateY(5px)' }, { opacity: 1, transform: 'none' }, 130, 470);
+
+    // The label introduces the topic; the heading opens upward as one type block.
+    play(document.querySelector('.eyebrow'), { opacity: 0, transform: 'translateY(6px) scale(.96)' }, { opacity: 1, transform: 'none' }, 260, 510);
+    play(document.querySelector('.heading-text'), { opacity: 0, transform: 'translateY(18px)' }, { opacity: 1, transform: 'none' }, 370, 760, 'cubic-bezier(.19, 1, .22, 1)');
+    play(document.querySelector('.lede'), { opacity: 0, transform: 'translateY(9px)' }, { opacity: 1, transform: 'none' }, 660, 580);
+    play(document.querySelector('.btn-white'), { opacity: 0, transform: 'translateY(7px)' }, { opacity: 1, transform: 'none' }, 820, 520);
+
+    // Search leads into the help categories; cards resolve by reading order.
+    play(document.querySelector('.search'), { opacity: 0, transform: 'translateY(10px)' }, { opacity: 1, transform: 'none' }, 1010, 610);
+    cards.forEach((card, index) => play(card,
+      { opacity: 0, transform: 'translateY(10px) scale(.992)' },
+      { opacity: 1, transform: 'none' },
+      1250 + index * 85, 590));
+
+    Promise.all(animations.map(animation => animation.finished.catch(() => {}))).then(finish);
+  };
+
+  // Use the local fonts for the heading's reveal, with a short deadline for slow loads.
+  Promise.race([
+    document.fonts.ready,
+    new Promise(resolve => setTimeout(resolve, 500))
+  ]).then(() => requestAnimationFrame(start), finish);
 })();
 </script>
 </body>
